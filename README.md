@@ -8,5 +8,4 @@ An intelligent email notification platform that routes important emails to messa
 - Multi-channel notification routing (Telegram, WhatsApp)
 - Secure credential management
 
-## Setup and Configuration
-[Documentation coming soon]
+
