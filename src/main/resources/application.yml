@@ -1,0 +1,41 @@
+spring:
+  application:
+    name: notifysync
+  security:
+    oauth2:
+      client:
+        registration:
+          gmail:
+            client-id: ${GMAIL_CLIENT_ID}
+            client-secret: ${GMAIL_CLIENT_SECRET}
+            authorization-grant-type: authorization_code
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+            scope:
+              - https://www.googleapis.com/auth/gmail.readonly
+
+server:
+  port: 8080
+
+notifysync:
+  email:
+    check-interval-seconds: 300
+    max-emails-per-fetch: 10
+  telegram:
+    bot-token: ${TELEGRAM_BOT_TOKEN}
+    chat-id: ${TELEGRAM_CHAT_ID}
+  whatsapp:
+    enabled: true
+    # We'll use Twilio for WhatsApp integration
+    account-sid: ${TWILIO_ACCOUNT_SID}
+    auth-token: ${TWILIO_AUTH_TOKEN}
+    from-number: ${TWILIO_FROM_NUMBER}
+    to-number: ${WHATSAPP_TO_NUMBER}
+  filter:
+    important-domains:
+      - company.com
+      - client.org
+    important-keywords:
+      - urgent
+      - important
+      - action required
+      - deadline

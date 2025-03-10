@@ -31,3 +31,18 @@ build/
 
 ### VS Code ###
 .vscode/
+
+
+
+# Ignore environment-specific config files
+notifysync/src/main/resources/application-dev.yml
+/notifysync/src/main/resources/application-dev.yml
+**/application-dev.yml
+notifysync/src/main/resources/application.yml
+/notifysync/src/main/resources/application.yml
+**/application.yml
+
+credentials.json
+credentials.json/
+
+
