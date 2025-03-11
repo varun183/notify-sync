@@ -29,12 +29,19 @@ public class EmailFilterServiceImpl implements EmailFilterService {
     @Override
     public boolean isImportantEmail(Email email) {
         if (email == null) {
+            log.debug("Email is null");
             return false;
         }
+
+        log.debug("Checking importance for email: Subject='{}', From='{}'",
+                email.getSubject(), email.getSenderEmail());
+        log.debug("Important domains configured: {}", importantDomains);
+        log.debug("Important keywords configured: {}", importantKeywords);
 
         // Check if email is recent
         if (email.getReceivedAt() == null ||
                 ChronoUnit.HOURS.between(email.getReceivedAt(), LocalDateTime.now()) > recencyHours) {
+            log.debug("Email is too old or has no received date");
             return false;
         }
 
@@ -44,37 +51,64 @@ public class EmailFilterServiceImpl implements EmailFilterService {
             return true;
         }
 
-        // Check if the subject or body contains important keywords
-        if (containsImportantKeywords(email.getSubject()) || containsImportantKeywords(email.getBody())) {
-            log.debug("Email '{}' contains important keywords", email.getSubject());
+        // Check if the subject contains important keywords
+        if (containsImportantKeywords(email.getSubject())) {
+            log.debug("Email subject '{}' contains important keywords", email.getSubject());
             return true;
         }
 
+        // Check if the body contains important keywords
+        if (containsImportantKeywords(email.getBody())) {
+            log.debug("Email body contains important keywords");
+            return true;
+        }
+
+        log.debug("Email is not important");
         return false;
     }
 
     private boolean isFromImportantDomain(String emailAddress) {
         if (emailAddress == null || emailAddress.isBlank() || importantDomains == null || importantDomains.isEmpty()) {
+            log.debug("Email address is null/blank or no important domains configured");
             return false;
         }
 
         String lowerCaseEmail = emailAddress.toLowerCase(Locale.ROOT);
+        log.debug("Checking if email '{}' matches any important domains: {}", lowerCaseEmail, importantDomains);
 
-        return importantDomains.stream()
-                .filter(domain -> !domain.isBlank())
-                .anyMatch(domain -> lowerCaseEmail.endsWith("@" + domain.toLowerCase(Locale.ROOT)) ||
-                        lowerCaseEmail.endsWith("." + domain.toLowerCase(Locale.ROOT)));
+        for (String domain : importantDomains) {
+            if (domain == null || domain.isBlank()) continue;
+
+            String lowerCaseDomain = domain.toLowerCase(Locale.ROOT).trim();
+            boolean matches = lowerCaseEmail.endsWith("@" + lowerCaseDomain) ||
+                    lowerCaseEmail.endsWith("." + lowerCaseDomain);
+
+            log.debug("Checking domain '{}' against '{}': {}", lowerCaseDomain, lowerCaseEmail, matches);
+            if (matches) return true;
+        }
+
+        return false;
     }
 
     private boolean containsImportantKeywords(String content) {
         if (content == null || content.isBlank() || importantKeywords == null || importantKeywords.isEmpty()) {
+            log.debug("Content is null/blank or no important keywords configured");
             return false;
         }
 
         String lowerCaseContent = content.toLowerCase(Locale.ROOT);
+        log.debug("Checking if content contains any important keywords: {}", importantKeywords);
 
-        return importantKeywords.stream()
-                .filter(keyword -> !keyword.isBlank())
-                .anyMatch(keyword -> lowerCaseContent.contains(keyword.toLowerCase(Locale.ROOT)));
+        for (String keyword : importantKeywords) {
+            if (keyword == null || keyword.isBlank()) continue;
+
+            String lowerCaseKeyword = keyword.toLowerCase(Locale.ROOT).trim();
+            boolean contains = lowerCaseContent.contains(lowerCaseKeyword);
+
+            log.debug("Checking keyword '{}' in content: {}", lowerCaseKeyword, contains);
+            if (contains) return true;
+        }
+
+        return false;
     }
 }
