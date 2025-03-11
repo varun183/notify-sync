@@ -4,6 +4,7 @@ import com.notifysync.notifysync.model.Email;
 import com.notifysync.notifysync.model.Notification;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.annotation.Order;
 import org.springframework.stereotype.Service;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.meta.api.methods.send.SendMessage;
@@ -12,6 +13,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Service
 @Slf4j
+@Order(2)
 public class TelegramChannel extends TelegramLongPollingBot implements NotificationChannel {
 
     @Value("${notifysync.telegram.chat-id}")
@@ -20,9 +22,10 @@ public class TelegramChannel extends TelegramLongPollingBot implements Notificat
     @Value("${notifysync.telegram.bot-username:NotifySyncBot}")
     private String botUsername;
 
+    @Value("${notifysync.telegram.bot-token}")
     private final String botToken;
 
-    public TelegramChannel(@Value("${notifysync.telegram.bot-token}") String botToken) {
+    public TelegramChannel(@Value("${notifysync.telegram.bot-token}")String botToken) {
         super(botToken);
         this.botToken = botToken;
     }
