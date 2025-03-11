@@ -1,4 +1,4 @@
-package com.notifysync.notifysync.service;
+package com.notifysync.notifysync.service.processor;
 
 
 import com.notifysync.notifysync.model.Email;
@@ -16,7 +16,7 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class EmailProcessorService {
+public class EmailProcessorServiceImpl implements EmailProcessorService {
 
     private final EmailService emailService;
     private final EmailFilterService emailFilterService;
@@ -25,6 +25,7 @@ public class EmailProcessorService {
     @Value("${notifysync.email.max-emails-per-fetch:10}")
     private int maxEmailsPerFetch;
 
+    @Override
     @Scheduled(fixedDelayString = "${notifysync.email.check-interval-seconds:300}000")
     public void processEmails() {
         log.info("Starting scheduled email processing");
