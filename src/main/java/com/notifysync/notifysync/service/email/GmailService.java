@@ -7,8 +7,9 @@ import com.google.api.services.gmail.model.Message;
 import com.google.api.services.gmail.model.MessagePart;
 import com.google.api.services.gmail.model.MessagePartHeader;
 import com.notifysync.notifysync.model.Email;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
@@ -17,12 +18,16 @@ import java.time.ZoneId;
 import java.util.*;
 
 @Service
-@RequiredArgsConstructor
 @Slf4j
 public class GmailService implements EmailService {
 
     private final Gmail gmail;
     private static final String USER_ID = "me";
+
+    @Autowired
+    public GmailService(@Qualifier("gmailApiService") Gmail gmail) {
+        this.gmail = gmail;
+    }
 
     @Override
     public List<Email> fetchRecentEmails(int maxResults) {
@@ -134,7 +139,21 @@ public class GmailService implements EmailService {
     }
 
     private String decodeBase64(String data) {
-        byte[] decodedBytes = Base64.getUrlDecoder().decode(data.replace('-', '+').replace('_', '/'));
-        return new String(decodedBytes);
+        try {
+            // Handle special characters in Base64 URL encoding
+            // First, add padding if needed
+            StringBuilder dataBuilder = new StringBuilder(data);
+            while (dataBuilder.length() % 4 != 0) {
+                dataBuilder.append("=");
+            }
+            data = dataBuilder.toString();
+            // Then convert URL-safe characters back to standard Base64
+            data = data.replace("-", "+").replace("_", "/");
+            byte[] decodedBytes = Base64.getDecoder().decode(data);
+            return new String(decodedBytes);
+        } catch (IllegalArgumentException e) {
+            log.warn("Failed to decode Base64 data: {}", e.getMessage());
+            return ""; // Return empty string instead of failing
+        }
     }
 }
