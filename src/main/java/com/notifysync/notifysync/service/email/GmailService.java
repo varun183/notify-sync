@@ -1,6 +1,5 @@
 package com.notifysync.notifysync.service.email;
 
-
 import com.google.api.services.gmail.Gmail;
 import com.google.api.services.gmail.model.ListMessagesResponse;
 import com.google.api.services.gmail.model.Message;
@@ -70,6 +69,9 @@ public class GmailService implements EmailService {
         String body = "";
         LocalDateTime receivedAt = null;
 
+        // Extract the thread ID
+        String threadId = message.getThreadId();
+
         // Get headers
         if (message.getPayload() != null && message.getPayload().getHeaders() != null) {
             for (MessagePartHeader header : message.getPayload().getHeaders()) {
@@ -108,8 +110,10 @@ public class GmailService implements EmailService {
             body = getTextFromMessagePart(message.getPayload());
         }
 
+        // Build email with thread ID included
         return Email.builder()
                 .id(message.getId())
+                .threadId(threadId)
                 .subject(subject)
                 .sender(sender)
                 .senderEmail(senderEmail)
