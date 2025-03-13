@@ -84,10 +84,8 @@ public class EmailTrackingServiceImpl implements EmailTrackingService {
 
         processedEmails.put(emailId, info);
 
-        // Periodically clean up old entries (older than 30 days)
-        if (processedEmails.size() % 100 == 0) {
-            cleanupOldEntries();
-        }
+        // Periodically clean up old entries
+        cleanupOldEntries();
 
         // Save to file every 10 new emails
         if (processedEmails.size() % 10 == 0) {
@@ -160,7 +158,7 @@ public class EmailTrackingServiceImpl implements EmailTrackingService {
      * Clean up entries older than 30 days to prevent unlimited growth
      */
     private void cleanupOldEntries() {
-        LocalDateTime cutoffTime = LocalDateTime.now().minusDays(30);
+        LocalDateTime cutoffTime = LocalDateTime.now().minusHours(24);
 
         // Remove old processed emails
         processedEmails.entrySet().removeIf(entry ->
