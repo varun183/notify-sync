@@ -1,7 +1,7 @@
 package com.notifysync.notifysync.controller;
 
 
-import com.notifysync.notifysync.service.EmailProcessorService;
+import com.notifysync.notifysync.service.processor.EmailProcessorService;
 import com.notifysync.notifysync.service.channel.NotificationChannel;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
