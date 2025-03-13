@@ -10,6 +10,7 @@ import java.util.List;
 @Builder
 public class Email {
     private String id;
+    private String threadId;
     private String subject;
     private String sender;
     private String senderEmail;
