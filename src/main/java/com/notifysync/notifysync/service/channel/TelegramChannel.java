@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Service
 @Slf4j
-@Order(2)
+@Order(1)
 public class TelegramChannel extends TelegramLongPollingBot implements NotificationChannel {
 
     @Value("${notifysync.telegram.chat-id}")
@@ -37,7 +37,7 @@ public class TelegramChannel extends TelegramLongPollingBot implements Notificat
 
     @Override
     public void onUpdateReceived(Update update) {
-        // We don't need to handle incoming messages for this application
+        // No need to handle incoming messages for this channel for now
         log.debug("Received update: {}", update);
     }
 
@@ -81,10 +81,38 @@ public class TelegramChannel extends TelegramLongPollingBot implements Notificat
         sb.append("<b>Subject:</b> ").append(email.getSubject()).append("\n");
         sb.append("<b>Received:</b> ").append(email.getReceivedAt()).append("\n\n");
 
-        // Truncate body if too long
+        // Get and process body
         String body = email.getBody();
-        if (body != null && body.length() > 500) {
-            body = body.substring(0, 500) + "...";
+        if (body != null) {
+            // First check if it looks like HTML content
+            if (body.contains("<html") || body.contains("<!DOCTYPE") || body.contains("<style") ||
+                    body.contains("<head") || body.contains("<body")) {
+
+                // For HTML emails, extract just readable text or provide a summary
+                body = "This email contains rich HTML content.\n\nPlease check your email inbox for the complete message.";
+            } else {
+                // For regular emails, strip any HTML tags that might be present
+                body = body.replaceAll("<[^>]*>", "");
+
+                // Convert common HTML entities
+                body = body.replace("&nbsp;", " ")
+                        .replace("&lt;", "<")
+                        .replace("&gt;", ">")
+                        .replace("&amp;", "&")
+                        .replace("&quot;", "\"")
+                        .replace("&apos;", "'");
+
+                // Clean up excessive whitespace
+                body = body.replaceAll("(?m)^[ \t]*\r?\n", ""); // Remove empty lines
+                body = body.replaceAll("[ \t]+\r?\n", "\n");    // Remove trailing spaces
+                body = body.replaceAll("\n{3,}", "\n\n");       // Replace 3+ consecutive newlines with just 2
+                body = body.trim();                            // Trim leading/trailing whitespace
+
+                // Truncate if too long
+                if (body.length() > 500) {
+                    body = body.substring(0, 500) + "...";
+                }
+            }
         }
 
         sb.append(body);
