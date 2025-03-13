@@ -60,8 +60,8 @@ public class NotificationServiceImpl implements NotificationService {
                             channel.getChannelType(), email.getSubject());
                     results.add(notification);
 
-                    // If successfully sent via a channel, we can stop trying others
-                    break;
+
+                    // break;  <-- commented out this line so that notif sent to all channels
                 } else {
                     log.warn("Failed to send notification via {} for email: {}",
                             channel.getChannelType(), email.getSubject());
