@@ -13,7 +13,7 @@ import org.telegram.telegrambots.meta.exceptions.TelegramApiException;
 
 @Service
 @Slf4j
-@Order(1)
+@Order(2)
 public class TelegramChannel extends TelegramLongPollingBot implements NotificationChannel {
 
     @Value("${notifysync.telegram.chat-id}")
